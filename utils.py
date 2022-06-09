@@ -6,10 +6,24 @@ import pdb
 
 debug = True
 
-def genNChallenges(length=8, nrows=1):
+def genNChallenges(length=8, nrows=1, b=-1):
     c = np.random.choice(2,length*nrows)
+    if b != -1:
+        c = np.random.choice(2,length*nrows, p=[b, 1-b])
     c = c.reshape(nrows,length)
     return c
+
+def genChallengesBySAC(length, nChallenges, chs=np.array([])):
+    if chs.size == 0:
+        chs = np.random.choice(2, nChallenges*length).reshape(nChallenges, length)
+    hd1 = np.tile(chs, (length+1, 1, 1))
+    # for each index in filp array, for each challenge, flip the index-th bit
+    pivot = hd1[length]
+    for i in range(length):
+        hd1[i, :, i] = np.logical_not(pivot[:,i]).astype(int)
+    #pdb.set_trace()
+    hd1 = hd1.reshape(nChallenges*(length+1), length)
+    return hd1
 
 def softResToHard(softres):
     sres = softres.copy()
@@ -31,6 +45,25 @@ def diff(res1, res2):
     nrof_res = res1.flatten().shape[0]
     return (res1.flatten()==res2.flatten()).sum()/nrof_res
 
+def getDiffMsk(res1, res2):
+    if len(res1)!=len(res2):
+        print("LENGTH MISMATCH.")
+        return
+    msk = (res1.flatten()==res2.flatten())
+    print("Totoal: {}, diff(%): {}.".format(len(msk), msk.sum()/len(msk)))
+    return msk
+
+'''
+def data_partitioning(x, y, thres):
+    set_num = len(thres)+1
+'''
+
+def append_ndarr(arr, arr_ele):
+    if arr is None:
+        arr = arr_ele
+    else:
+        arr = np.concatenate([arr, arr_ele], axis=1)
+    return arr
 
 def genChallengesforSAC(length, nChallenges):
     chs = np.random.choice(2, nChallenges*length).reshape(nChallenges, length)
@@ -82,7 +115,7 @@ def false_rejected(n, p1, p2, auth_thres, ebit=1):
     puf2_err = cum_bin_prob(x, n, p2)
     pfr = puf1_err + puf2_err - puf1_err*puf2_err
     #print("p1 = {}, p2 = {}.".format(p1, p2))
-    print("P_FR = {}, puf#1 err prob = {}, puf#2 err prob = {},".format(pfr, puf1_err, puf2_err))
+    print("puf#1 err prob = {}, puf#2 err prob = {}, P_FR = {}".format(puf1_err, puf2_err, pfr))
     #print("Approx. Auth rate = {}".format(1-pfr))
     return pfr
 
