@@ -1,16 +1,17 @@
 # Submission ID 35 for CODES+ISSS22
 Enhancing Reliability and Security: A Configurable Poisoning PUF against Modeling Attacks
 
-###Package requirements
+### Package requirements
 - Please check the file "requirements.txt"
 
-###Data Preparation
+### Data Preparation
 
 - Default path for challenge-response pairs is "/dataset"
 - Run "python dataPreparation.py" to initialize randomly generated challenges.
 - Generate responses for the corresponding PUFs. For instance "python getAPUFResponse.py" for APUF's responses
 
-###File Descriptions:
+### File Descriptions:
+
 |   Files| Descriptions  |
 | ------------ | ------------ |
 |  apuf_lib.py |PUF library. Implementations for APUF, XOR APUF, CP PUF, IPUF, DCH PUF.|
