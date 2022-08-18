@@ -6,7 +6,7 @@ import utils
    
 length = 128
 seed = 42
-nchal = 500000
+nchal = 50000
 
 dataDir = os.path.join(os.getcwd(), "dataset/dataset-{}bit-challenge".format(length))
 
@@ -14,7 +14,7 @@ print(dataDir)
 if not os.path.exists(dataDir):
     os.makedirs(dataDir)
 
-filename = "dataset-{}.csv".format(nchal)
+filename = "dataset-challenge-{}.csv".format(nchal)
 
 chs = utils.genNChallenges(length, nchal)
 

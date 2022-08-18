@@ -20,7 +20,7 @@ def getCSAPUFResponse(stb_chs, nrof_batched_chs, nrow, csapuf, swpufRes1, swpufR
     gt_csapuf2 = np.zeros((nrof_batched_chs, nrow))
 
     for i in range(nrof_batched_chs):
-        if i %1000 == 0:
+        if i % (nrof_batched_chs//10) == 0:
             print("progress: {}/{}".format(i, nrof_batched_chs))
         csaRes[i], csapuf1[i], csapuf2[i] = csapuf.getPufResponse(stb_chs[i].reshape(nrow, dim))
         gt_csaRes[i], gt_csapuf1[i], gt_csapuf2[i] = csapuf.getPufResponse(stb_chs[i].reshape(nrow, dim), noisefree=True)
@@ -33,15 +33,18 @@ length = 128
 
 dim = 128
 nrow = 128
-chs_all = 6000000
+chs_all = 50000
 batches = chs_all//128
 nchs = batches*nrow
 
 print("load data...")
-xDir = "dataset/dataset-128bit-challenge/dataset-6m.csv"
-chsDir =  "dataset/dataset-128bit-challenge/dataset-challenge-6m.csv"
-parity = pd.read_csv(xDir,header=None, dtype=np.int8).iloc[:nchs, :].values
+chsDir =  "dataset/dataset-128bit-challenge/dataset-challenge-50000.csv"
 chs = pd.read_csv(chsDir,header=None, dtype=np.int8).iloc[:nchs, :].values
+xDir = "dataset/dataset-128bit-challenge/dataset-50000.csv"
+if os.path.exists(xDir):
+    parity = pd.read_csv(xDir,header=None, dtype=np.int8).iloc[:nchs, :].values
+else:
+    parity = ap.challengeTransform(chs, length, nchs)
 
 print("Init PUFs...")
 # Init CSAPUF
@@ -80,7 +83,7 @@ stb_chs = stb_chs[:nrof_batched_chs, :].reshape(-1, nrow, dim)
 mRes1 = mRes1[:nrof_batched_chs].reshape(-1, nrow)
 mRes2 = mRes2[:nrof_batched_chs].reshape(-1, nrow)
 
-pdb.set_trace()
+#pdb.set_trace()
 
 print("Get stable responses...")
 # Noisy/noise-free hard response
@@ -98,11 +101,11 @@ rcsaRes, rcsapuf1, rcsapuf2, rgt_csaRes, rgt_csapuf1, rgt_csapuf2 = getCSAPUFRes
 
 print("reliability of CSAPUF from random challenges: {}".format((rcsaRes==rgt_csaRes).sum()/nrof_batched_chs))
 
-pdb.set_trace()
+#pdb.set_trace()
 
-#print("save hard responses...")
-#np.savetxt('response/seed42/csapuf/CRPseed29/csapuf-{}-res-stb-envn{}-{}.csv'.format(length, env_nsig, nrof_batched_chs), csaRes, fmt="%d", delimiter=',')
-#np.savetxt('response/seed42/csapuf/CRPseed29/csapuf-{}-res-stb-nf-{}.csv'.format(length, nrof_batched_chs), gt_csaRes, fmt="%d", delimiter=',')
+print("save hard responses...")
+np.savetxt('dataset/response/cppuf/cppuf-{}-res-stb-env_n{}-{}.csv'.format(length, env_nsig, nrof_batched_chs), csaRes, fmt="%d", delimiter=',')
+np.savetxt('dataset/response/cppuf/cppuf-{}-res-stb-nfree-{}.csv'.format(length, nrof_batched_chs), gt_csaRes, fmt="%d", delimiter=',')
 
 #np.savetxt('dataset/dataset-128bit-challenge/csa_stable_chs/stb_chs-{}.csv'.format(length, nrof_batched_chs), stb_chs.reshape(-1,128), fmt="%d", delimiter=',')
 #
